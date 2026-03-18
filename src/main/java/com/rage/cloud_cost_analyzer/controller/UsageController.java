@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -25,5 +26,18 @@ public class UsageController {
     @GetMapping
     public List<Usage> getAllUsage(){
         return service.getAllUsage();
+    }
+    @GetMapping("/total-cost")
+    public double totalCost(){
+        return service.getTotalCost();
+    }
+    @GetMapping("/service-cost")
+    public Map<String,Double> serviceCost(){
+        return service.getCostByService();
+    }
+
+    @GetMapping("/top-service")
+    public String topService(){
+        return service.getTopService();
     }
 }
