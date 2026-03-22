@@ -1,14 +1,20 @@
 # Cloud Cost Analyzer
 
-Backend system to analyze cloud usage and cost.
-
-## Tech Stack
+## 🚀 Tech Stack
 - Spring Boot
-- MongoDB Atlas
-- REST APIs
+- MongoDB
+- React (coming soon)
 
-## Features
-- Add usage data
-- Calculate total cost
-- Service-wise cost breakdown
-- Top service detection
+## 📌 Features
+- Add cloud cost
+- View all costs
+- Filter by provider (coming soon)
+
+## 📡 API Endpoints
+POST /api/costs  
+GET /api/costs  
+
+## 🔮 Future Enhancements
+- Dashboard (charts)
+- Monthly analytics
+- Cost optimization suggestions
