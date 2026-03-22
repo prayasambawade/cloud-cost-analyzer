@@ -20,4 +20,6 @@ public class Cost {
     private double amount;
     private String date;
 
+    private String userId;
+
 }

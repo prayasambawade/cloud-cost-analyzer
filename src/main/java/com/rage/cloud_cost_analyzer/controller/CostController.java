@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/costs")
@@ -24,5 +25,20 @@ public class CostController {
     @GetMapping
     public List<Cost> getAllCost(){
         return costService.getAllCosts();
+    }
+
+    @GetMapping("/total/{userId}")
+    public double getTotalCost(@PathVariable String userId){
+        return costService.getTotalCost(userId);
+    }
+
+    @GetMapping("/monthly/{userId}")
+    public Map<String,Double> getMonthlyCost(@PathVariable String userId){
+        return costService.getMonthlyCost(userId);
+    }
+    @GetMapping("/totalbyuser/{userId}")
+    public double getTotalCostById(@PathVariable String userId){
+        return costService.getTotalCost(userId);
+
     }
 }
