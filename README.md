@@ -1,21 +1,19 @@
-# Cloud Cost Analyzer
-Cloud Cost Analyzer using Spring Boot & MongoDB with APIs for cost tracking, category analysis, and usage trends.
+# Cloud Cost Analyzer 🚀
 
-## 🚀 Tech Stack
+## Features
+- Cost Tracking
+- Budget Alert System
+- Email Notification
+- Service-wise Breakdown
+- AI Recommendation
+
+## Tech Stack
 - Spring Boot
 - MongoDB
-- React (coming soon)
+- JavaMailSender
 
-## 📌 Features
-- Add cloud cost
-- View all costs
-- Filter by provider (coming soon)
-
-## 📡 API Endpoints
-POST /api/costs  
-GET /api/costs  
-
-## 🔮 Future Enhancements
-- Dashboard (charts)
-- Monthly analytics
-- Cost optimization suggestions
+## APIs
+- Register/Login
+- Add Cost
+- Budget Check
+- Recommendation
