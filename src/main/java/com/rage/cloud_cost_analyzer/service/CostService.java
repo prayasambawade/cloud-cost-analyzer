@@ -1,7 +1,10 @@
 package com.rage.cloud_cost_analyzer.service;
 
+import com.rage.cloud_cost_analyzer.dto.ServiceCostDTO;
 import com.rage.cloud_cost_analyzer.model.Cost;
+import com.rage.cloud_cost_analyzer.model.User;
 import com.rage.cloud_cost_analyzer.repository.CostRepository;
+import com.rage.cloud_cost_analyzer.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,14 @@ public class CostService {
 
     @Autowired
     private CostRepository costRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+
 
     public Cost addCost(Cost cost){
         return costRepository.save(cost);
@@ -67,6 +78,71 @@ public class CostService {
 
         }
         return daily;
+    }
+
+    public List<ServiceCostDTO> getCostByService(String userId){
+        return costRepository.getCostByService(userId);
+    }
+
+    public String checkBudget(String userId){
+
+        List<Cost> costs = costRepository.findByUserId(userId);
+
+        double total = costs.stream()
+                .mapToDouble(Cost :: getAmount)
+                .sum();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        if (total > user.getBudget()) {
+
+            // 🔥 SEND EMAIL
+            emailService.sendAlert(
+                    user.getEmail(),
+                    "⚠️ Budget exceeded!\n\nTotal Cost: " + total +
+                            "\nBudget: " + user.getBudget()
+            );
+
+            return "⚠️ Budget exceeded! Email sent. Total: " + total;
+        }
+        else {
+            return "✅ Within budget. Total: " + total;
+        }
+    }
+
+    public Map<String, String> getRecommendation(String userId){
+        List<ServiceCostDTO> breakdown = costRepository.getCostByService(userId);
+
+        ServiceCostDTO maxService = breakdown.stream()
+                .max((a ,b) -> Double.compare(a.getTotal(),b.getTotal()))
+                .orElse(null);
+
+        if (maxService == null){
+            return Map.of("Message" , "No Cost data available");
+        }
+
+        String service = maxService.getService();
+        double cost = maxService.getTotal();
+
+        String message;
+        if (service.equalsIgnoreCase("EC2")){
+            message = "High EC2 cost detected. Consider Stopping unused instance.";
+        } else if (service.equalsIgnoreCase("S3")) {
+            message = "High S3 cost . Consider deleting unused storage";
+
+            
+        }
+        else {
+            message = "High cost in " + service + "Review usage";
+        }
+
+        return Map.of(
+                "Service", service,
+                "cost" ,String.valueOf(cost),
+                "recommendation" ,message
+        );
+
     }
 
 

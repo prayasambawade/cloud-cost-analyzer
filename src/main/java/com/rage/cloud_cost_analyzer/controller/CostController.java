@@ -1,5 +1,6 @@
 package com.rage.cloud_cost_analyzer.controller;
 
+import com.rage.cloud_cost_analyzer.dto.ServiceCostDTO;
 import com.rage.cloud_cost_analyzer.model.Cost;
 import com.rage.cloud_cost_analyzer.service.CostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,4 +42,19 @@ public class CostController {
         return costService.getTotalCost(userId);
 
     }
+    @GetMapping("/breakdown/{userId}")
+    public List<ServiceCostDTO> getCostBreakDown(@PathVariable String userId){
+        return costService.getCostByService(userId);
+    }
+
+    @GetMapping("/budget-check/{userId}")
+    public String checkBudget(@PathVariable String userId){
+        return costService.checkBudget(userId);
+    }
+
+    @GetMapping("/recommendation/{userId}")
+        public Map<String, String> getRecommendation(@PathVariable String userId ){
+        return costService.getRecommendation(userId);
+    }
+
 }
