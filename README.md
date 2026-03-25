@@ -1,4 +1,5 @@
 # Cloud Cost Analyzer 
+Cloud Cost Analyzer is a full-stack web application that helps users monitor, analyze, and optimize cloud expenses. It provides a centralized dashboard with cost breakdowns, usage analytics, and visual insights to make better financial decisions in cloud environments.
 
 ## Features
 - Cost Tracking
