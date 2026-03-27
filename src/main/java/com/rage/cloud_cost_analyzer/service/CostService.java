@@ -6,6 +6,9 @@ import com.rage.cloud_cost_analyzer.model.User;
 import com.rage.cloud_cost_analyzer.repository.CostRepository;
 import com.rage.cloud_cost_analyzer.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -25,40 +28,53 @@ public class CostService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private AIService aiService;
 
 
-    public Cost addCost(Cost cost){
+    public Cost addCost(Cost cost) {
         return costRepository.save(cost);
     }
 
-    public List<Cost> getAllCosts(){
+    public List<Cost> getAllCosts() {
         return costRepository.findAll();
     }
 
-    public double getTotalCost(String UserId){
-    List<Cost> records = costRepository.findByUserId(UserId);
+    public String chatWithAI(String userQuery) {
+        String prompt = "You are a cloud cost optimization assistant. Answer clearly" + userQuery;
 
-    double total = 0;
-
-    for (Cost record : records){
-        total += record.getAmount();
-    }
-    return total;
+        return aiService.getRecommendation(prompt);
     }
 
-    public Map<String,Double> getMonthlyCost(String userId){
+    public Page<Cost> getCostsByUser(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return costRepository.findByUserId(userId, pageable);
+    }
+
+    public double getTotalCost(String UserId) {
+        List<Cost> records = costRepository.findByUserId(UserId);
+
+        double total = 0;
+
+        for (Cost record : records) {
+            total += record.getAmount();
+        }
+        return total;
+    }
+
+    public Map<String, Double> getMonthlyCost(String userId) {
         List<Cost> records = costRepository.findByUserId(userId);
 
-        Map<String,Double> monthlyCost = new HashMap<>();
-        for (Cost record : records){
-            String month = record.getDate().substring(0,7);
+        Map<String, Double> monthlyCost = new HashMap<>();
+        for (Cost record : records) {
+            String month = record.getDate().substring(0, 7);
             monthlyCost.put(month,
-                    monthlyCost.getOrDefault(month,0.0) + record.getAmount());
+                    monthlyCost.getOrDefault(month, 0.0) + record.getAmount());
         }
         return monthlyCost;
     }
 
-    public double getTotalCostById(String userId){
+    public double getTotalCostById(String userId) {
         List<Cost> costs = costRepository.findByUserId(userId);
 
         return costs.stream()
@@ -66,30 +82,30 @@ public class CostService {
                 .sum();
     }
 
-    public Map<String,Double> getDailyCost(String userId){
+    public Map<String, Double> getDailyCost(String userId) {
         List<Cost> costs = costRepository.findByUserId(userId);
 
-        Map<String,Double> daily = new HashMap<>();
+        Map<String, Double> daily = new HashMap<>();
 
-        for (Cost c : costs){
+        for (Cost c : costs) {
             String date = c.getDate().toString();
 
-            daily.put(date,daily.getOrDefault(date,0.0)+c.getAmount());
+            daily.put(date, daily.getOrDefault(date, 0.0) + c.getAmount());
 
         }
         return daily;
     }
 
-    public List<ServiceCostDTO> getCostByService(String userId){
+    public List<ServiceCostDTO> getCostByService(String userId) {
         return costRepository.getCostByService(userId);
     }
 
-    public String checkBudget(String userId){
+    public String checkBudget(String userId) {
 
         List<Cost> costs = costRepository.findByUserId(userId);
 
         double total = costs.stream()
-                .mapToDouble(Cost :: getAmount)
+                .mapToDouble(Cost::getAmount)
                 .sum();
 
         User user = userRepository.findById(userId)
@@ -97,7 +113,7 @@ public class CostService {
 
         if (total > user.getBudget()) {
 
-            // 🔥 SEND EMAIL
+
             emailService.sendAlert(
                     user.getEmail(),
                     "⚠️ Budget exceeded!\n\nTotal Cost: " + total +
@@ -105,47 +121,44 @@ public class CostService {
             );
 
             return "⚠️ Budget exceeded! Email sent. Total: " + total;
-        }
-        else {
+        } else {
             return "✅ Within budget. Total: " + total;
         }
     }
 
-    public Map<String, String> getRecommendation(String userId){
+    public Map<String, String> getRecommendation(String userId) {
+
         List<ServiceCostDTO> breakdown = costRepository.getCostByService(userId);
 
+        if (breakdown == null || breakdown.isEmpty()) {
+            return Map.of("Message", "No Cost data available");
+        }
+
         ServiceCostDTO maxService = breakdown.stream()
-                .max((a ,b) -> Double.compare(a.getTotal(),b.getTotal()))
+                .max((a, b) -> Double.compare(a.getTotal(), b.getTotal()))
                 .orElse(null);
 
-        if (maxService == null){
-            return Map.of("Message" , "No Cost data available");
+        if (maxService == null) {
+            return Map.of("Message", "No Cost data available");
         }
 
         String service = maxService.getService();
         double cost = maxService.getTotal();
 
-        String message;
-        if (service.equalsIgnoreCase("EC2")){
-            message = "High EC2 cost detected. Consider Stopping unused instance.";
-        } else if (service.equalsIgnoreCase("S3")) {
-            message = "High S3 cost . Consider deleting unused storage";
+        String prompt = "User highest cloud cost service is " + service +
+                " with cost " + cost +
+                ". Suggest ways to reduce cost in simple terms.";
 
-            
-        }
-        else {
-            message = "High cost in " + service + "Review usage";
-        }
+        String aiResponse = aiService.getRecommendation(prompt);
 
         return Map.of(
                 "Service", service,
-                "cost" ,String.valueOf(cost),
-                "recommendation" ,message
+                "cost", String.valueOf(cost),
+                "AI_Recommendation", aiResponse
         );
-
     }
-
-
-
-
 }
+
+
+
+

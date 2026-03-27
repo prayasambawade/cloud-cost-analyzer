@@ -10,4 +10,8 @@ import lombok.NoArgsConstructor;
 public class CostResponse {
     private String category;
     private double total;
+    private String id;
+    private String serviceName;
+    private double amount;
+    private String userId;
 }
