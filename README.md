@@ -1,23 +1,28 @@
 # Cloud Cost Analyzer 
-Cloud Cost Analyzer is a full-stack web application that helps users monitor, analyze, and optimize cloud expenses. It provides a centralized dashboard with cost breakdowns, usage analytics, and visual insights to make better financial decisions in cloud environments.
+AI-powered cloud cost analyzer using Spring Boot, MongoDB, and Ollama
 
 ## Features
 - Cost Tracking
+- Pagination
 - Budget Alert System
 - Email Notification
 - Service-wise Breakdown
 - AI Recommendation
+- Chatbot API
 
 ## Tech Stack
-- Spring Boot
+- Java + Spring Boot
 - MongoDB
 - JavaMailSender
+- Ollama (Local AI)
+- Ollama (Local AI)
 
 ## APIs
 - Register/Login
 - Add Cost
 - Budget Check
 - Recommendation
+- AI Chatbot
 
  ## Future Enhancements
 - Multi-cloud integration (AWS, Azure, GCP)
