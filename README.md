@@ -1,21 +1,18 @@
-# Cloud Cost Analyzer 
+# CloudOptimizer 
 AI-powered cloud cost analyzer using Spring Boot, MongoDB, and Ollama
 
 ## Features
-- Cost Tracking
-- Pagination
-- Budget Alert System
-- Email Notification
-- Service-wise Breakdown
-- AI Recommendation
-- Chatbot API
+- AI Chatbot (Ollama - local LLM)
+- Redis Caching for performance optimization
+- MongoDB for data storage
+- Budget alerts with Email
 
 ## Tech Stack
 - Java + Spring Boot
 - MongoDB
 - JavaMailSender
 - Ollama (Local AI)
-- Ollama (Local AI)
+- Redis
 
 ## APIs
 - Register/Login
