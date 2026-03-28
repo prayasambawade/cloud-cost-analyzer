@@ -6,11 +6,14 @@ import com.rage.cloud_cost_analyzer.model.User;
 import com.rage.cloud_cost_analyzer.repository.CostRepository;
 import com.rage.cloud_cost_analyzer.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +35,13 @@ public class CostService {
     private AIService aiService;
 
 
+    @CacheEvict(value = "totalCost", key = "#cost.userId")
     public Cost addCost(Cost cost) {
+
+        if (cost.getDate() == null) {
+            cost.setDate(LocalDate.now().toString());
+        }
+
         return costRepository.save(cost);
     }
 
@@ -40,8 +49,23 @@ public class CostService {
         return costRepository.findAll();
     }
 
-    public String chatWithAI(String userQuery) {
-        String prompt = "You are a cloud cost optimization assistant. Answer clearly" + userQuery;
+    public String chatWithAI(String userId,String userQuery){
+
+        List<ServiceCostDTO> breakdown = costRepository.getCostByService(userId);
+
+        String context = breakdown.isEmpty() ?
+                "No cost data available" : breakdown.toString();
+
+        String prompt = """
+        You are a cloud cost optimization assistant.
+
+        User cloud spending:
+        """ + context + """
+
+        Answer based on user's data.
+
+        Question:
+        """ + userQuery;
 
         return aiService.getRecommendation(prompt);
     }
@@ -51,15 +75,15 @@ public class CostService {
         return costRepository.findByUserId(userId, pageable);
     }
 
-    public double getTotalCost(String UserId) {
-        List<Cost> records = costRepository.findByUserId(UserId);
+    @Cacheable(value = "totalCost", key = "#userId")
+    public double getTotalCost(String userId) {
 
-        double total = 0;
+        System.out.println("🔥 DB HIT: getTotalCost");
 
-        for (Cost record : records) {
-            total += record.getAmount();
-        }
-        return total;
+        return costRepository.findByUserId(userId)
+                .stream()
+                .mapToDouble(Cost::getAmount)
+                .sum();
     }
 
     public Map<String, Double> getMonthlyCost(String userId) {
@@ -145,9 +169,15 @@ public class CostService {
         String service = maxService.getService();
         double cost = maxService.getTotal();
 
-        String prompt = "User highest cloud cost service is " + service +
-                " with cost " + cost +
-                ". Suggest ways to reduce cost in simple terms.";
+        String prompt = """
+                You are a cloud cost optimization expert.
+
+                Highest cost service: %s
+                Cost: %.2f
+
+                Give 2-3 practical suggestions to reduce cost.
+                Keep answer short and clear.
+                """.formatted(service, cost);
 
         String aiResponse = aiService.getRecommendation(prompt);
 

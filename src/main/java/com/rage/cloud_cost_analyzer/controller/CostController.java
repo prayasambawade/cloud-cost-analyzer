@@ -1,12 +1,10 @@
 package com.rage.cloud_cost_analyzer.controller;
 
-import com.rage.cloud_cost_analyzer.dto.ChatRequest;
-import com.rage.cloud_cost_analyzer.dto.ChatResponse;
-import com.rage.cloud_cost_analyzer.dto.CostRequestDTO;
-import com.rage.cloud_cost_analyzer.dto.ServiceCostDTO;
+import com.rage.cloud_cost_analyzer.dto.*;
 import com.rage.cloud_cost_analyzer.model.Cost;
 import com.rage.cloud_cost_analyzer.service.CostService;
 import jakarta.validation.Valid;
+import com.rage.cloud_cost_analyzer.dto.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -25,21 +23,23 @@ public class CostController {
     private CostService costService;
 
     @PostMapping
-    public ResponseEntity<?> addCost(@Valid @RequestBody CostRequestDTO dto){
+    public ResponseEntity<?> addCost(@Valid @RequestBody CostRequestDTO dto) {
         Cost cost = new Cost();
         cost.setServiceName(dto.getServiceName());
         cost.setAmount(dto.getAmount());
         cost.setUserId(dto.getUserId());
 
         Cost saved = costService.addCost(cost);
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(
+                new ApiResponse<Cost>("success", saved)
+        );
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getCosts(
             @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size){
+            @RequestParam(defaultValue = "5") int size) {
 
         Page<Cost> costs = costService.getCostsByUser(userId, page, size);
 
@@ -47,54 +47,63 @@ public class CostController {
     }
 
 
-
     @GetMapping
-    public List<Cost> getAllCost(){
+    public List<Cost> getAllCost() {
         return costService.getAllCosts();
     }
 
     @GetMapping("/total/{userId}")
-    public double getTotalCost(@PathVariable String userId){
+    public double getTotalCost(@PathVariable String userId) {
         return costService.getTotalCost(userId);
     }
 
     @GetMapping("/monthly/{userId}")
-    public Map<String,Double> getMonthlyCost(@PathVariable String userId){
+    public Map<String, Double> getMonthlyCost(@PathVariable String userId) {
         return costService.getMonthlyCost(userId);
     }
+
     @GetMapping("/totalbyuser/{userId}")
-    public double getTotalCostById(@PathVariable String userId){
+    public double getTotalCostById(@PathVariable String userId) {
         return costService.getTotalCost(userId);
 
     }
+
     @GetMapping("/breakdown/{userId}")
-    public List<ServiceCostDTO> getCostBreakDown(@PathVariable String userId){
+    public List<ServiceCostDTO> getCostBreakDown(@PathVariable String userId) {
         return costService.getCostByService(userId);
     }
 
     @GetMapping("/budget-check/{userId}")
-    public String checkBudget(@PathVariable String userId){
+    public String checkBudget(@PathVariable String userId) {
         return costService.checkBudget(userId);
     }
 
     @GetMapping("/recommendation/{userId}")
-        public Map<String, String> getRecommendation(@PathVariable String userId ){
+    public Map<String, String> getRecommendation(@PathVariable String userId) {
         return costService.getRecommendation(userId);
     }
 
     @GetMapping("/costs/monthly")
-    public List<Integer> getMonthlyCost(){
-        return List.of(200,300,500,800);
+    public List<Integer> getMonthlyCost() {
+        return List.of(200, 300, 500, 800);
     }
 
     @GetMapping("/ai/{userId}")
     public ResponseEntity<?> getAIRecommendation(@PathVariable String userId){
-        return ResponseEntity.ok(costService.getRecommendation(userId));
+
+        Map<String, String> result = costService.getRecommendation(userId);
+
+        ApiResponse<Map<String, String>> response =
+                new ApiResponse<Map<String, String>>("success", result);
+
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/chat")
-    public ResponseEntity<?> chat (@RequestBody ChatRequest request){
-        String reply = costService.chatWithAI(request.getMessage());
+    @PostMapping("/chat/{userId}")
+    public ResponseEntity<?> chat(@PathVariable String userId,
+                                  @RequestBody ChatRequest request){
+
+        String reply = costService.chatWithAI(userId, request.getMessage());
         return ResponseEntity.ok(new ChatResponse(reply));
     }
 

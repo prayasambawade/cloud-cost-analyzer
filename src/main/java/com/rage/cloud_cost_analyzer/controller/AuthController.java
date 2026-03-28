@@ -4,7 +4,8 @@ import com.rage.cloud_cost_analyzer.model.User;
 import com.rage.cloud_cost_analyzer.service.AuthService;
 import com.rage.cloud_cost_analyzer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
