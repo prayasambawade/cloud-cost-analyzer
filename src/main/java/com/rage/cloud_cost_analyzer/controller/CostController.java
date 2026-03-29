@@ -106,5 +106,9 @@ public class CostController {
         String reply = costService.chatWithAI(userId, request.getMessage());
         return ResponseEntity.ok(new ChatResponse(reply));
     }
+    @GetMapping("/ai-recommendation/{userId}")
+    public String getCostRecommendation(@PathVariable String userId){
+        return costService.getCostRecommendation(userId);
+    }
 
 }

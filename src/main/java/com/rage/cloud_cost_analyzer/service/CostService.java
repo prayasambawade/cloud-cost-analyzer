@@ -67,7 +67,7 @@ public class CostService {
         Question:
         """ + userQuery;
 
-        return aiService.getRecommendation(prompt);
+        return aiService.getRecommendation(prompt,userId);
     }
 
     public Page<Cost> getCostsByUser(String userId, int page, int size) {
@@ -179,13 +179,18 @@ public class CostService {
                 Keep answer short and clear.
                 """.formatted(service, cost);
 
-        String aiResponse = aiService.getRecommendation(prompt);
+        String aiResponse = aiService.getRecommendation(prompt,userId);
 
         return Map.of(
                 "Service", service,
                 "cost", String.valueOf(cost),
                 "AI_Recommendation", aiResponse
         );
+    }
+    public String getCostRecommendation(String userId){
+        String costData = "AWS........";
+
+        return aiService.getRecommendation(costData,userId);
     }
 }
 
