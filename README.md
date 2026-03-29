@@ -6,9 +6,11 @@ AI-powered cloud cost analyzer using Spring Boot, MongoDB, and Ollama
 - Redis Caching for performance optimization
 - MongoDB for data storage
 - Budget alerts with Email
+- Chat history stored in MongoDB
 
 ## Tech Stack
 - Java + Spring Boot
+- Next-JS
 - MongoDB
 - JavaMailSender
 - Ollama (Local AI)
