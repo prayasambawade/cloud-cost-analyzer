@@ -25,6 +25,14 @@ Frontend (Next-JS) → Backend (Spring Boot) → AI (Ollama) → MongoDB
 3. Run Spring Boot app
 4. Run Next-JS frontend
 
+## Impact
+- Reduced manual cloud cost analysis effort
+- Provided AI-based real-time recommendations
+- Built scalable backend architecture
+
+## Example Use Cae
+User enters cloud usage → System sends prompt to AI → AI returns optimization suggestions → Stored in MongoDB → Displayed in UI
+
  ## Future Enhancements
 - JWT Authentication
 - Redis Caching
