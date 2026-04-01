@@ -7,6 +7,10 @@ AI-powered cloud cost analyzer using Spring Boot, MongoDB, and Ollama
 - MongoDB for data storage
 - Cloud cost optimization suggestions
 - Chat history stored in MongoDB
+- Intelligent cost recommendation engine
+- Service-level cost aggregation and analysis
+- Priority-based optimization (HIGH, MEDIUM, LOW)
+- AI-ready backend architecture
 
 ## Tech Stack
 - Java + Spring Boot
